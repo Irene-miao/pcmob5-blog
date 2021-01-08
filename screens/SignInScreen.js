@@ -21,10 +21,24 @@ export default function SignInScreen({ navigation }) {
   const [password, setPassword] = useState("");
   const [errorText, setErrorText] = useState("");
 
-  function login() {
+  async function login() {
+    console.log("--Login--");
     Keyboard.dismiss();
-   AsyncStorage.setItem("token", "sdfipaejabrtjbrtbpj");
-   navigation.navigate("Account");
+
+    try {
+      const response = await axios.post(API + API_LOGIN, {
+        username,
+        password,
+      });
+      console.log("Success logging in!");
+      console.log(response);
+      AsyncStorage.setItem("token", response.data.access_token);
+      navigation.navigate("Account");
+    } catch (error) {
+      console.log("Error logging in!");
+      console.log(error.response);
+      setErrorText(error.response.data.description);
+    }
   }
   
   function dismissKeyboard() {

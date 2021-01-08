@@ -19,10 +19,12 @@ export default function App() {
 
 async function loadToken() {
    const token = await AsyncStorage.getItem("token");
+   console.log("--loadToken--");
    if (token) {
-     console.log("-----");
      console.log("Got token!" + token);
      setSignedIn(true);
+   } else {
+    console.log("No token?");
    }
    setLoading(false);
 }
@@ -31,15 +33,15 @@ useEffect(() => {
   loadToken();
 }, []);
 
-  return loading? (
+return loading? (
     <View style={styles.container}>
       <ActivityIndicator />
     </View>
   ) : (
     <NavigationContainer>
       <Stack.Navigator mode="modal" headerMode="none" initialRouteName={signedIn ? "Account" : "SignIn"}>
+      <Stack.Screen component={SignInScreen} name="SignIn" />
         <Stack.Screen component={AccountScreen} name="Account" />
-        <Stack.Screen component={SignInScreen} name="SignIn" />
       </Stack.Navigator>
     </NavigationContainer>
   );
