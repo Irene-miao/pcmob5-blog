@@ -8,7 +8,13 @@ import {
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
+  Platform,
 } from "react-native";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from "axios";
+
+const API = "http://irene2miao.pythonanywhere.com";
+const API_LOGIN = "/auth";
 
 export default function SignInScreen({ navigation }) {
   const [username, setUsername] = useState("");
@@ -17,11 +23,19 @@ export default function SignInScreen({ navigation }) {
 
   function login() {
     Keyboard.dismiss();
-    // do stuff here to log in
+   AsyncStorage.setItem("token", "sdfipaejabrtjbrtbpj");
+   navigation.navigate("Account");
+  }
+  
+  function dismissKeyboard() {
+    if (Platform.OS !== "web") {
+      Keyboard.dismiss();
+    }
   }
 
+
   return (
-    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+    <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View style={styles.container}>
         <Text style={styles.title}>Sign in to blog</Text>
         <Text style={styles.fieldTitle}>Username</Text>
