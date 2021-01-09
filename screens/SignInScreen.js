@@ -38,7 +38,8 @@ export default function SignInScreen({ navigation }) {
       console.log("Error logging in!");
       console.log(error.response);
       setErrorText(error.response.data.description);
-    }
+      navigation.navigate("SignUp");
+    } 
   }
   
   function dismissKeyboard() {
@@ -73,6 +74,9 @@ export default function SignInScreen({ navigation }) {
         <TouchableOpacity onPress={login} style={styles.loginButton}>
           <Text style={styles.buttonText}>Log in</Text>
         </TouchableOpacity>
+        <TouchableOpacity onPress={() => navigation.navigate("SignUp")} style={styles.signupButton}>
+          <Text style={styles.buttonText}>Sign up</Text>
+        </TouchableOpacity>
         <Text style={styles.errorText}>{errorText}</Text>
       </View>
     </TouchableWithoutFeedback>
@@ -105,6 +109,14 @@ const styles = StyleSheet.create({
   },
   loginButton: {
     backgroundColor: "blue",
+    width: 120,
+    alignItems: "center",
+    padding: 18,
+    marginTop: 12,
+    marginBottom: 36,
+  },
+  signupButton: {
+    backgroundColor: "red",
     width: 120,
     alignItems: "center",
     padding: 18,
