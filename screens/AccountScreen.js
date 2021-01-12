@@ -1,29 +1,25 @@
-import React, { useState} from "react";
+import React, { useState, useEffect} from "react";
 import { ActivityIndicator, Button, StyleSheet, Text, View } from "react-native";
 import { commonStyles } from "../styles/commonStyles";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUsername } from "../hooks/useAPI";
 
-
 export default function AccountScreen({ navigation }) {
   const [username, loading, error, refresh] = useUsername();
-
-
-  // signs out if the useUsername hook returns error as true
+ 
+  useEffect(() => {
+    if (error) {
+      signOut();
+    }
+  }, [error]); // monitor the error state variable
   
-  useState(() => {
-   if (error) {
-     signOut();
-   }
-  }, [error]);
-
-  useState(() => {
-   const removeListener = navigation.addListener("focus", () => {
-     refresh(true);
-   });
-
-   return removeListener;
-  }, []);
+  useEffect(() => {
+    console.log("Setting up nav listener");
+    const removeListener = navigation.addListener("focus", () => {
+      refresh(true);
+    });
+    return removeListener;
+  }, []); // run this once on start
 
   function signOut() {
     AsyncStorage.removeItem("token");
@@ -33,7 +29,7 @@ export default function AccountScreen({ navigation }) {
   return (
     <View style={commonStyles.container}>
       <Text>Account Screen</Text>
-      { loading ? <ActivityIndicator />:<Text>{username}</Text>}
+      { loading ? <ActivityIndicator /> : <Text>{username}</Text>}
       <Button title="Sign out" onPress={signOut} />
     </View>
   );

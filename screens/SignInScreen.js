@@ -82,13 +82,14 @@ export default function SignInScreen({ navigation }) {
         </TouchableOpacity>
         <TouchableOpacity onPress={() => navigation.navigate("SignUp")} style={styles.signupButton}>
           <Text style={styles.buttonText}>Sign up</Text>
+         
         </TouchableOpacity>
         {loading ? (
           <ActivityIndicator style={{ marginLeft: 20, marginBottom: 20 }} />
         ) : null}
         </View>
         <Text style={styles.errorText}>{errorText}</Text>
-        <View style={{ height: 20, alignItems: "left" }}></View>
+        <View style={{ height: 20, alignItems: "flex-start", flex:1, margin: 5 }}></View>
         </View>
     </TouchableWithoutFeedback>
   );
@@ -133,7 +134,9 @@ const styles = StyleSheet.create({
     padding: 18,
     marginTop: 12,
     marginBottom: 36,
+    marginLeft: 10,
   },
+ 
   buttonText: {
     color: "white",
     fontWeight: "bold",

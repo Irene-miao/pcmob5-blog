@@ -15,33 +15,49 @@ import axios from "axios";
 
 
 const API = "http://irene2miao.pythonanywhere.com";
+const API_LOGIN = "/auth";
 const API_SIGNUP = "/newuser";
 
 export default function SignUpScreen({ navigation }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [errorText, setErrorText] = useState("");
+  const [loading, setLoading] = useState(false);
 
   async function signup() {
-    console.log("--Sign up--");
+    console.log("--Signing up--");
     Keyboard.dismiss();
 
     try {
+      setLoading(true)
       const response = await axios.post(API + API_SIGNUP, {
         username,
         password,
       });
       console.log("Success signing up!");
-      console.log(response);
-      AsyncStorage.setItem(response.data);
-      navigation.navigate("SignIn");
-    } catch (error) {
+      login();
+    } catch (e) {
       console.log("Error signing up!");
-      console.log(error.response);
-      setErrorText(error.response.data.description);    } 
+      console.log(e);
+        } 
   }
 
+  async function login() {
+    console.log("----Login----");
+    Keyboard.dismiss();
 
+    try {
+      setLoading(true);
+      const response = await axios.post(API + API_LOGIN, {
+        username,
+        password,
+      });
+      console.log("Error logging in!");
+      console.log(error.response);
+      setErrorText(error.response.data.description);
+      setLoading(false);
+    }
+  }
 
 
   function dismissKeyboard() {
@@ -72,8 +88,22 @@ export default function SignUpScreen({ navigation }) {
           value={password}
           onChangeText={(input) => setPassword(input)}
         />
+         <View style={{ flexDirection: "row" }}></View>
         <TouchableOpacity onPress={signup} style={styles.registerButton}>
           <Text style={styles.buttonText}>Register</Text>
+        </TouchableOpacity>
+        {loading ? (
+            <ActivityIndicator style={{ marginBottom: 20, marginLeft: 30 }} />
+          ) : null}
+        </View>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.navigate("SignIn");
+          }}
+        >
+          <Text style={styles.signInText}>
+            Already have an account? Sign in
+          </Text>
         </TouchableOpacity>
         <Text style={styles.errorText}>{errorText}</Text>
       </View>
@@ -112,6 +142,9 @@ const styles = StyleSheet.create({
     padding: 18,
     marginTop: 12,
     marginBottom: 36,
+  },
+  signInText: {
+    color: "blue",
   },
   buttonText: {
     color: "white",

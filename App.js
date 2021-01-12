@@ -41,9 +41,9 @@ return loading? (
   ) : (
     <NavigationContainer>
       <Stack.Navigator mode="modal" headerMode="none" initialRouteName={signedIn ? "Account" : "SignIn"}>
-      <Stack.Screen component={SignInScreen} name="SignIn" />
         <Stack.Screen component={AccountScreen} name="Account" />
-       
+        <Stack.Screen component={SignInScreen} name="SignIn" />
+        <Stack.Screen component={SignUpScreen} name="SignUp" />
       </Stack.Navigator>
     </NavigationContainer>
   );
