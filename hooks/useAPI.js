@@ -7,7 +7,7 @@ const API_WHOAMI = "/whoami";
 
 export function useUsername() {
   const [username, setUsername] = useState("");
-  const [error, setError] = useState(false);
+  const [errorText, setErrorText] = useState(false);
   const [loading, setLoading] = useState(false);
   const [refresh, setRefresh] = useState(false);
 
@@ -40,7 +40,7 @@ export function useUsername() {
     setRefresh(false);
   }, [refresh]);
 
-  return [username, loading, error, setRefresh];
+  return [username, loading, errorText, setRefresh];
 }
 
    
