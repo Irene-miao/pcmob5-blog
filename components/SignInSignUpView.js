@@ -11,77 +11,39 @@ import {
   Platform,
   ActivityIndicator
 } from "react-native";
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from "axios";
+import { useAuth } from "../hooks/useAPI";
 
-
-const API = "http://irene2miao.pythonanywhere.com";
-const API_LOGIN = "/auth";
-const API_SIGNUP = "/newuser";
 
 export default function SignUpSignUpView({ navigation, isSignIn }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [errorText, setErrorText] = useState("");
-  const [loading, setLoading] = useState(false);
+  
+   const [ login, signup, loading, errorText ] = useAuth(
+     username,
+     password,
+     () => {
+      navigation.navigate("Account"); // function to be run on successful login
+     }
+   );
 
-  async function signup() {
-    console.log("--Signing up--");
-    Keyboard.dismiss();
-
-    try {
-      setLoading(true);
-      const response = await axios.post(API + API_SIGNUP, {
-        username,
-        password,
-      });
-      if (response.data.Error === "User already exists") {
-        setErrorText("This user exists");
-        setLoading(false);
-        return;
-      }
-      console.log("Success signing up!");
-      console.log(response);
-      login();
-
-    } catch (e) {
-      console.log("Error signing up");
-      if (e.response) {
-        if (e.response.data.error) {
-          setErrorText(e.response.data.error);
-        }
-      }
-        } 
-  }
-
-  async function login() {
-    console.log("----Login----");
-    Keyboard.dismiss();
-
-    try {
-      setLoading(true);
-      const response = await axios.post(API + API_LOGIN, {
-        username,
-        password,
-      });
-      console.log("Success logging in!");
-      console.log(response);
-      await AsyncStorage.setItem("token", response.data.access_token);
-      navigation.navigate("Account");
-    } catch (error) {
-      console.log("Error logging in!");
-      console.log(error.response);
-      setErrorText(error.response.data.description);
-    } finally {
-        setLoading(false);
-    }
-  }
-
-
-  function dismissKeyboard() {
+   function dismissKeyboard() {
     if (Platform.OS !== "web") {
       Keyboard.dismiss();
     }
+  }
+
+  function handleLogin() {
+    dismissKeyboard();
+    login();
+    setUsername("");
+    setPassword("");
+  }
+
+  function handleSignup() {
+    dismissKeyboard();
+    signup();
+    setUsername("");
+    setPassword("");
   }
 
   return (
@@ -107,7 +69,7 @@ export default function SignUpSignUpView({ navigation, isSignIn }) {
           onChangeText={(input) => setPassword(input)}
         />
          <View style={{ flexDirection: "row" }}>
-        <TouchableOpacity onPress={isSignIn ? login : signup} style={styles.signUpButton}>
+        <TouchableOpacity onPress={isSignIn ? handleLogin : handleSignup} style={[styles.loginButton,  {backgroundColor: isSignIn ? "red" : "blue"}]}>
           <Text style={styles.buttonText}>{ isSignIn ? "Log in" : "Sign up"}</Text>
         </TouchableOpacity>
         {loading ? (
@@ -117,9 +79,9 @@ export default function SignUpSignUpView({ navigation, isSignIn }) {
         <TouchableOpacity
           onPress={() => {
             navigation.navigate(isSignIn ? "SignUp" : "SignIn");
-          }}
+          }} 
         >
-         <Text style={styles.signInText}>
+         <Text style={styles.switchText}>
             { isSignIn ?
             "Do not have an account? Sign up" : "Already have an account? Sign in"}
           </Text>
@@ -154,16 +116,13 @@ const styles = StyleSheet.create({
     fontSize: 18,
     backgroundColor: "white",
   },
-  signUpButton: {
+  loginButton: {
     backgroundColor: "red",
     width: 120,
     alignItems: "center",
     padding: 18,
     marginTop: 12,
     marginBottom: 36,
-  },
-  signInText: {
-    color: "blue",
   },
   buttonText: {
     color: "white",
