@@ -18,7 +18,6 @@ export function useUsername() {
     (async () => {
       setLoading(true);
       const token = await AsyncStorage.getItem("token");
-      console.log(token);
       if (token == null) {
         setError(true);
         setUsername(null);
@@ -28,11 +27,11 @@ export function useUsername() {
             headers: {Authorization: `JWT ${token}`},
           });
           setUsername(response.data.username);
-          setLoading(false);
         } catch(e) {
           setError(true);
           setUsername(null);
         } finally {
+          // this is run regardless of erropr or not
           setLoading(false);
         }
       }
@@ -57,6 +56,7 @@ export function useAuth(username, password, navigationCallback) {
         password,
       });
       console.log("Success signing in!");
+      console.log(response);
       await AsyncStorage.setItem("token", response.data.access_token);
       navigationCallback();
     } catch (error) {
@@ -73,7 +73,7 @@ export function useAuth(username, password, navigationCallback) {
 
     try {
       setLoading(true);
-      await axios.post(API + API_SIGNUP, {
+      const response = await axios.post(API + API_SIGNUP, {
         username,
         password,
       });

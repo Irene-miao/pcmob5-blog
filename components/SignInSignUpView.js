@@ -12,17 +12,24 @@ import {
   ActivityIndicator
 } from "react-native";
 import { useAuth } from "../hooks/useAPI";
-
+import { useDispatch } from "react-redux";
+import { signInAction} from "../redux/ducks/blogAuth";
 
 export default function SignUpSignUpView({ navigation, isSignIn }) {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  
-   const [ login, signup, loading, errorText ] = useAuth(
+  const dispatch = useDispatch();
+  const [ login, signup, loading, errorText ] = useAuth(
      username,
      password,
      () => {
-      navigation.navigate("Account"); // function to be run on successful login
+      // setTimeout(() => {
+      dispatch(signInAction());
+      // }, 500);
+
+      // Note to self: the setTimeout method gets rid of the warning
+      // because it gives time for loading to change the ActivityIndicator
+      // before the component unmounts
      }
    );
 
