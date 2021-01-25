@@ -42,33 +42,35 @@ export default function SignInScreen({ navigation }) {
 
   function back() {
     navigation.navigate("Posts");
-  }
+  };
 
   function dismissKeyboard() {
     if (Platform.OS !== "web") {
       Keyboard.dismiss();
     }
-  }
+  };
 
-  async function createPost() {
-    console.log("---- Creating post ----");
+
+  async function addPost() {
+    console.log("Creating a post");
    dismissKeyboard();
 
     try {
-      const response = await axios.post(API + API_CREATE, {
+      const response = await axios.post(API + API_CREATE,{
         title,
         content,
-      });
+      } );
       console.log("Success creating post!");
       console.log(response);
+      setTitle(response.data.title);
+      setContent(response.data.content);
       AsyncStorage.setItem(response.data);
+      navigation.navigate("Posts");
     } catch (error) {
       console.log("Error creating post!");
       console.log(error.response);
       setErrorText(error.response.data.description);
-    } finally {
-      navigation.navigate("Posts");
-    }
+    } 
 
   }
 
@@ -88,7 +90,7 @@ export default function SignInScreen({ navigation }) {
           value={content}
           onChangeText={(input) => setContent(input)}
         />
-        <TouchableOpacity onPress={createPost} style={styles.createButton}>
+        <TouchableOpacity onPress={addPost} style={styles.createButton}>
           <Text style={styles.buttonText}>Create</Text>
         </TouchableOpacity>
         <Text style={styles.errorText}>{errorText}</Text>

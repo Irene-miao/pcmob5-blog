@@ -6,13 +6,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 
 const API = "http://Irene2miao.pythonanywhere.com/";
-const API_SHOW = "/posts/<int:id>";
+const API_SHOW = "/posts/";
 
 export default function IndexScreen({ navigation }) {
   const isDarkModeOn = useSelector((state) => state.prefs.darkMode);
+  const [loading, setLoading] = useState(false);
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
 
   async function getPost() {
@@ -20,15 +20,18 @@ export default function IndexScreen({ navigation }) {
 
     try {
       setLoading(true);
-      const response = await axios.get(API + API_SHOW, {
+      const response = await axios.get(API + API_SHOW + id, {
+        id,
         title,
         content,
       });
-      console.log("Success getting the post");
+      console.log("Success getting the post " + id);
       console.log(response);
       await AsyncStorage.setItem(response.data);
+      setTitle(response.data.title);
+      setContent(response.data.content);
     } catch (error) {
-      console.log("Error getting the post");
+      console.log("Error getting the post " + id);
       console.log(error.response);
       setErrorText(error.response.data.description);
     } finally {
@@ -42,8 +45,10 @@ export default function IndexScreen({ navigation }) {
             isDarkModeOn && { backgroundColor: "black"},
             ]}
           >
-            <Text>{title}</Text>
-            <Text>{content}</Text>
+              <Text style={styles.time}>
+        {loading ? <ActivityIndicator size="large" color="blue" /> : arrival}{" "}
+      </Text>
+            <Text>{post}</Text>
             <TouchableOpacity onPress={() => navigation.navigate("EditBlog")} style={styles.editButton}>
           <Text style={styles.buttonText}>Edit</Text>
         </TouchableOpacity>
@@ -51,6 +56,7 @@ export default function IndexScreen({ navigation }) {
           </View>
     );
   }
+  
 
 const styles = StyleSheet.create({
   editButton: {

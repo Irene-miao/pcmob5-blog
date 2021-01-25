@@ -19,7 +19,7 @@ export default function blogAuthReducer(state = initialState, action) {
         case SIGN_IN:
             return { ...state, signedIn: true };
         case SIGN_OUT:
-            return { ...state, signedIn: true };
+            return { ...state, signedIn: false };
         default:
             return state;
     }

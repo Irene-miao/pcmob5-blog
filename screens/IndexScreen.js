@@ -3,19 +3,19 @@ import { useState, useEffect } from "react";
 import {
   View,
   Text,
-  TextInput,
+ ActivityIndicator,
   StyleSheet,
   TouchableOpacity,
   TouchableWithoutFeedback,
   Keyboard,
   FlatList,
-  ActivityIndicator,
-  Touchable,
+  Platform,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import { Ionicons } from "@expo/vector-icons";
-import { render } from "react-dom";
+import { FontAwesome } from '@expo/vector-icons'; 
+
 
 
 const API = "https://Irene2miao.pythonanywhere.com";
@@ -23,10 +23,12 @@ const API_ALL = "/posts";
 const API_DELETE = "/posts/";
 
 export default function IndexScreen({ navigation }) {
-  const [posts, setPosts] = useState([]);
+  const [title, setTitle] = useState("");
+  const [content, setContent] = useState("");
   const [errorText, setErrorText] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [refresh, setRefresh] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+const posts = [].concat(title, content);
 
   useEffect(() => {
     navigation.setOptions({
@@ -48,16 +50,23 @@ export default function IndexScreen({ navigation }) {
 
   function addPost() {
     navigation.navigate("NewPost");
-  }
+  };
+
+  function editPost(id) {
+    navigation.navigate("EditPost", id);
+  };
 
   function dismissKeyboard() {
     if (Platform.OS !== "web") {
       Keyboard.dismiss();
     }
-  }
+  };
 
   useEffect(() => {
-    (async () => {
+    getPosts();
+  }, []);
+
+  async function getPosts() {
       console.log("---- Getting posts ----");
       dismissKeyboard();
   
@@ -65,25 +74,25 @@ export default function IndexScreen({ navigation }) {
         const response = await axios.get(API + API_ALL, {
           id,
           title,
+          content,
         });
-        console.log("Success getting posts!");
+        console.log("Success getting posts");
         console.log(response);
-        setPosts(response.data);
+        setTitle(response.data.title);
+        setContent(response.data.content);
         AsyncStorage.setItem(response.data);
+        setLoading(false);
       } catch (error) {
-        console.log("Error logging in!");
+        console.log("Error getting posts");
         console.log(error.response);
-  
         setErrorText(error.response.data.description);
       }
-    }) ();
-    setRefresh(false);
-  }, [refresh]);
-
-  return [posts, loading, errorText, setRefresh];
+    };
+        
+ 
 
 
-  async function deletePost(id) {
+ async function deletePost(id) {
     console.log("---- Deleting post ----");
     dismissKeyboard()
 
@@ -91,19 +100,21 @@ export default function IndexScreen({ navigation }) {
       const response = await axios.delete(API + API_DELETE + id, {
         id,
         title,
+        content,
       });
       console.log("Success deleting post " + id);
       console.log(response);
-      setPosts(response.data);
+      setTitle(response.data.title);
+      setContent(response.data.content);
       AsyncStorage.setItem(response.data);
     } catch (error) {
       console.log("Error deleting post " + id);
       console.log(error.response);
       setErrorText(error.response.data.description);
     }
-  }
+  };
 
-  function renderItem({item}) {
+  function renderItem({ item }) {
     return (
       <TouchableWithoutFeedback onPress={dismissKeyboard}>
       <View
@@ -117,20 +128,22 @@ export default function IndexScreen({ navigation }) {
           justifyContent: "space-between",
         }}
       >
-        <TouchableOpacity onPress={() => navigation.navigate("Post", {...item})}>
         <Text style={styles.text}>{item.title}</Text>
-        </TouchableOpacity>
-        <TouchableOpacity onPress={() => deletePost(item.id)}>
+        <Text style={styles.text}>{item.content}</Text>
+        <TouchableOpacity style={styles.deleteBtn} onPress={() => deletePost(item.id)}>
           <Ionicons name="trash" size={16} color="#944" />
         </TouchableOpacity>
-        <Text style={styles.errorText}>{errorText}</Text>
+        <TouchableOpacity style={styles.editBtn} onPress={() => editPost(item.id)}>
+        <FontAwesome name="edit" size={16} color="black" />
+        </TouchableOpacity>
       </View>
       </TouchableWithoutFeedback>
-    )
-  };
+    );
+  }
+
 
   return (
-    <View style={styles.container}>
+      <View style={styles.container}>
       {loading ? (
             <ActivityIndicator style={{ marginBottom: 20, marginLeft: 30 }} />
           ) : null}
@@ -138,11 +151,11 @@ export default function IndexScreen({ navigation }) {
         data={posts}
         renderItem={renderItem}
         style={{ width: "100%" }}
-        keyExtractor={(item) => item.id.toString()}
-      />
+        keyExtractor={(item) => item.id} />
     </View>
   );
 }
+
 
 
 const styles = StyleSheet.create({
@@ -150,6 +163,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 24,
+    alignItems: "center",
   },
   text: {
     color: "black",
@@ -158,5 +172,13 @@ const styles = StyleSheet.create({
   errorText: {
     color: "red",
     height: 40,
+  },
+  editBtn: {
+    marginLeft: 5,
+    paddingLeft: 5
+  },
+  deleteBtn: {
+    marginLeft: 5,
+    paddingLeft: 5,
   },
 });

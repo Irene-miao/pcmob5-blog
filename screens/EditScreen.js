@@ -1,12 +1,21 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, {useState, useEffect} from "react";
+import { StyleSheet,
+   Text, 
+   View,
+   TouchableWithoutFeedback,
+   TextInput,
+   TouchableOpacity,
+   Platform,
+   ActivityIndicator,
+   } from "react-native";
 import { commonStyles } from "../styles/commonStyles";
 import { useSelector } from "react-redux";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
+import { Ionicons } from "@expo/vector-icons";
 
 const API = "http://Irene2miao.pythonanywhere.com/";
-const API_EDIT = "/posts/<int:id>";
+const API_EDIT = "/posts/";
 
 export default function CreateScreen({ navigation }) {
   const isDarkModeOn = useSelector((state) => state.prefs.darkMode);
@@ -15,18 +24,24 @@ export default function CreateScreen({ navigation }) {
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
 
-  async function updatePost() {
+
+  async function updatePost(id) {
     console.log("---- Getting the post ----");
 
     try {
       setLoading(true);
-      const response = await axios.put(API + API_EDIT, {
+      const response = await axios.put(API + API_EDIT + id,  {
+        id,
         title,
         content,
-      });
+      }
+      );
       console.log("Success updating the post");
       console.log(response);
+      setTitle(response.data.title);
+      setContent(response.data.content);
       await AsyncStorage.setItem(response.data);
+      navigation.navigate("Posts");
     } catch (error) {
       console.log("Error updating the post");
       console.log(error.response);
@@ -69,6 +84,9 @@ export default function CreateScreen({ navigation }) {
     <View style={[commonStyles.container,
             isDarkModeOn && { backgroundColor: "black"},
             ]}>
+             {loading ? (
+            <ActivityIndicator style={{ marginBottom: 20, marginLeft: 30 }} />
+          ) : null} 
       <Text style={styles.fieldTitle}>Title</Text>
         <TextInput
           style={styles.input}
@@ -115,7 +133,7 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   updateButton: {
-    backgroundColor: "red",
+    backgroundColor: "green",
     width: 120,
     alignItems: "center",
     padding: 18,
