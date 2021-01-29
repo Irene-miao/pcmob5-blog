@@ -21,7 +21,6 @@ export default function IndexScreen({ navigation }) {
     try {
       setLoading(true);
       const response = await axios.get(API + API_SHOW + id, {
-        id,
         title,
         content,
       });

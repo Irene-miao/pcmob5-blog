@@ -17,7 +17,8 @@ import { Ionicons } from "@expo/vector-icons";
 const API = "https://Irene2miao.pythonanywhere.com";
 const API_CREATE = "/create";
 
-export default function SignInScreen({ navigation }) {
+export default function CreateScreen({ navigation }) {
+  const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [errorText, setErrorText] = useState("");
@@ -42,27 +43,28 @@ export default function SignInScreen({ navigation }) {
 
   function back() {
     navigation.navigate("Posts");
-  };
+  }
 
   function dismissKeyboard() {
     if (Platform.OS !== "web") {
       Keyboard.dismiss();
     }
-  };
+  }
 
-
-  async function addPost() {
+  //Create post to DB
+  async function addPost(id, title, content, errorText) {
     console.log("Creating a post");
-   dismissKeyboard();
+    dismissKeyboard();
 
     try {
-      const response = await axios.post(API + API_CREATE,{
+      const response = await axios.post(API + API_CREATE, {
         title,
         content,
-      } );
+      });
       console.log("Success creating post!");
-      console.log(response);
-      setTitle(response.data.title);
+      console.log(response.data);
+      setId(response.data.id),
+      setTitle( response.data.title),
       setContent(response.data.content);
       AsyncStorage.setItem(response.data);
       navigation.navigate("Posts");
@@ -70,8 +72,7 @@ export default function SignInScreen({ navigation }) {
       console.log("Error creating post!");
       console.log(error.response);
       setErrorText(error.response.data.description);
-    } 
-
+    }
   }
 
   return (

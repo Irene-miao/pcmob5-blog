@@ -17,29 +17,32 @@ import { Ionicons } from "@expo/vector-icons";
 const API = "http://Irene2miao.pythonanywhere.com/";
 const API_EDIT = "/posts/";
 
-export default function CreateScreen({ navigation }) {
+
+
+export default function EditScreen({ navigation, route }) {
   const isDarkModeOn = useSelector((state) => state.prefs.darkMode);
+  const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorText, setErrorText] = useState("");
 
+  useEffect(() => {
+    setId(route.params?.id ? route.params.id : "");
+  }, [route.params]);
 
-  async function updatePost(id) {
+//Update post to DB
+  async function updatePost(id, title, content, loading, errorText) {
     console.log("---- Getting the post ----");
 
     try {
       setLoading(true);
-      const response = await axios.put(API + API_EDIT + id,  {
-        id,
-        title,
-        content,
-      }
-      );
+      const response = await axios.put(API + API_EDIT + id,  { data: {
+        title: {title},
+        content: {content},}
+      });
       console.log("Success updating the post");
-      console.log(response);
-      setTitle(response.data.title);
-      setContent(response.data.content);
+      console.log(response.data);
       await AsyncStorage.setItem(response.data);
       navigation.navigate("Posts");
     } catch (error) {
@@ -68,6 +71,8 @@ export default function CreateScreen({ navigation }) {
       ),
     });
   });
+
+ 
 
   function back() {
     navigation.navigate("Posts");

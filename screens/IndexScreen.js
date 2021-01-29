@@ -22,13 +22,14 @@ const API = "https://Irene2miao.pythonanywhere.com";
 const API_ALL = "/posts";
 const API_DELETE = "/posts/";
 
-export default function IndexScreen({ navigation }) {
+export default function IndexScreen({ navigation}) {
+  const [posts, setPosts] = useState([]);
+  const [id, setId] = useState("");
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [errorText, setErrorText] = useState("");
   const [loading, setLoading] = useState(true);
 
-const posts = [].concat(title, content);
 
   useEffect(() => {
     navigation.setOptions({
@@ -48,12 +49,17 @@ const posts = [].concat(title, content);
     });
   });
 
+useEffect(() => {
+  const posts = []
+  getPosts();
+}, []);
+
   function addPost() {
     navigation.navigate("NewPost");
   };
 
   function editPost(id) {
-    navigation.navigate("EditPost", id);
+    navigation.navigate("EditPost", {id: {id}});
   };
 
   function dismissKeyboard() {
@@ -62,24 +68,20 @@ const posts = [].concat(title, content);
     }
   };
 
-  useEffect(() => {
-    getPosts();
-  }, []);
 
-  async function getPosts() {
+  async function getPosts(id, title, content, errorText, loading) {
       console.log("---- Getting posts ----");
       dismissKeyboard();
-  
+  //Loads data from flask api
       try {
         const response = await axios.get(API + API_ALL, {
-          id,
+         id,
           title,
           content,
         });
         console.log("Success getting posts");
-        console.log(response);
-        setTitle(response.data.title);
-        setContent(response.data.content);
+        console.log(response.data);
+        setPosts(response.data);
         AsyncStorage.setItem(response.data);
         setLoading(false);
       } catch (error) {
@@ -92,20 +94,20 @@ const posts = [].concat(title, content);
  
 
 
- async function deletePost(id) {
+ async function deletePost(id, title) {
+   
     console.log("---- Deleting post ----");
     dismissKeyboard()
 
     try {
-      const response = await axios.delete(API + API_DELETE + id, {
-        id,
-        title,
-        content,
+      const response = await axios.delete(API + API_DELETE + id, {data: 
+        {
+        title: {title},}
       });
       console.log("Success deleting post " + id);
-      console.log(response);
-      setTitle(response.data.title);
-      setContent(response.data.content);
+      console.log(response.data);
+      const newPosts = posts.filter((item) => item.id !== id);
+      setPosts(newPosts);   
       AsyncStorage.setItem(response.data);
     } catch (error) {
       console.log("Error deleting post " + id);
@@ -125,9 +127,10 @@ const posts = [].concat(title, content);
           borderBottomColor: "#ccc",
           borderBottomWidth: 1,
           flexDirection: "row",
-          justifyContent: "space-between",
+          justifyContent: "space-around",
         }}
       >
+        <Text style={styles.text}>{item.id}</Text>
         <Text style={styles.text}>{item.title}</Text>
         <Text style={styles.text}>{item.content}</Text>
         <TouchableOpacity style={styles.deleteBtn} onPress={() => deletePost(item.id)}>
@@ -136,10 +139,11 @@ const posts = [].concat(title, content);
         <TouchableOpacity style={styles.editBtn} onPress={() => editPost(item.id)}>
         <FontAwesome name="edit" size={16} color="black" />
         </TouchableOpacity>
+        <Text style={styles.errorText}>{errorText}</Text>
       </View>
       </TouchableWithoutFeedback>
     );
-  }
+  };
 
 
   return (
@@ -151,7 +155,7 @@ const posts = [].concat(title, content);
         data={posts}
         renderItem={renderItem}
         style={{ width: "100%" }}
-        keyExtractor={(item) => item.id} />
+        keyExtractor={(item) => item.id.toString()} />
     </View>
   );
 }
@@ -174,11 +178,11 @@ const styles = StyleSheet.create({
     height: 40,
   },
   editBtn: {
-    marginLeft: 5,
-    paddingLeft: 5
+    marginLeft: 10,
+    paddingLeft: 5,
   },
   deleteBtn: {
-    marginLeft: 5,
+    marginLeft: 200,
     paddingLeft: 5,
   },
 });
